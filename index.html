@@ -1,0 +1,126 @@
+<html>
+    <head>
+        <title>edge content view portal</title>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <style>
+            td{
+                border-top: 2px solid black;
+                padding: 6px;
+            }
+        </style>
+    </head>
+<body>
+    <!-- <div id="app">
+        {{ message }}
+    </div> -->
+    
+    <div id="Blocklist">
+        <form v-on:submit.prevent="addNew">
+            <label>Add a block</label>
+                <input v-model="text">
+                <input v-model="author">
+                <select v-model="hash">
+                    <option v-for="block in blocks" v-bind:value="block.hash">
+                        {{ block.hash }}
+                    </option>
+                </select>
+            <button>Add</button>
+        </form>
+        <table class="table">
+            <tr>
+                <th>hash</th>
+                <th>data</th>
+            </tr>
+            <tr v-for="block in blocks">
+                <td>{{block.hash}}</td>
+                <td>
+                    <li v-for="(value, key) in block.data">
+                        <bold style="font-size: x-large;">{{key}}</bold>: {{value}}
+                    </li>
+                </td>
+            </tr>
+        </table>
+    </div>
+<script>
+// var app = new Vue({
+//     el: '#app',
+//         data: {
+//         message: 'Hello Vue!'
+//     }
+// })
+var BlocksVue = new Vue({
+    el: '#Blocklist',
+    data: {
+        text:'',
+        author:'',
+        hash:'',
+        blocks: [
+                {
+                    "data": {
+                        "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlOC6IkEsVB0WTiP4BB6a\nSAsVS5J6IWSCBV14WV2LeFRjp/xT2rn6ka45RCgs/6A+oG0gnmTthJGsP8lHWgXv\nxjrLk73gJdEa+dFUdnPkipprznmtytG3PLMdkJ2vR839T8H7lkNrMHgkZg/hrS0x\nA1/iOXXC5F5K1gjbSDWcEddO7RzlLhKrlVi6qWT+GJ6pDDSzr0topCZWtrEZ3pvn\nAIbi9fyDNYPauu/AjyXWDM9F2kkIUVgyG4EdY+iCfIRVPSUsjemJBJHwEw34OH03\nhOAON49sds4szx/R8X8hcGpGp2i4dG3twRMpafFXIFadxcQlt46MudBJuWUlw5Ib\nyQIDAQAB\n-----END PUBLIC KEY-----", 
+                        "key_hash_sign": "EMPj0w18XQFuQAa0017EqCM5jyerXkI2LY/RktTJHQ2FPcrms8JlClYYgTR0Sv02sNsNj0VpMw/LK6kG1HTE9JTsAODIe5cyn4GZe47RdrZbN9s+YWHYDntVNf9oh6fPjTvL2OAtkLe+UY2pwpFqhpIyVJKo+cSbr4O/yCxMH0st0Xa5cpZkg4QXQjqqZuKd94DzoM0BVBkl9lgfColwyWIV1QGJdItae/G2fw5EFAJGloljSGuWOQ9KFDXebpeZ/ylUeyrtaM8OF064MdldKWBxzePdRIBDyne/xZkN5VixJvt1X9jaq8APpnD/cIX3B1qTHWcMH3XDBqaQ6aRLfQ=="
+                    }, 
+                    "hash": "08284aef7b6a05214d32bb564e7b0803118fb44e858e48d7a4a8bb0070db0538", 
+                    "previous_hash": null, 
+                    "sub_hashes": [1,2,3]
+                }
+            ]
+
+    },
+    mounted: function () {
+        this.dataRelaod()
+    },
+    methods: {
+        dataRelaod: function(){
+        var self = this;
+            $.ajax({
+                url: '/b/blocks',
+                method: 'GET',
+                success: function (data) {
+                    // data_arr = []
+                    // for (var key in data) {
+                    //     if (data.hasOwnProperty(key)) {
+                    //         data[key].hash = key
+                    //         data_arr.push(data[key])
+                    //     }
+                    // }
+                    
+                    // self.blocks = data_arr;
+                    self.blocks = data;
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        },
+        addNew: function () {
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": "http://127.0.0.1:8080/blocks/add",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "cache-control": "no-cache",
+                    "Postman-Token": "1994c137-5803-4e9a-a0aa-a3f7fe40916f"
+                },
+                "processData": false,
+                "data": JSON.stringify({
+                        "text":this.text,
+                        "author":this.author,
+                        "previous_hash": this.hash
+                    })
+                }
+                var self = this;
+                $.ajax(settings).done(function (response) {
+                    self.dataRelaod()
+                });
+                this.text = ''
+                this.author = ''
+        }
+    }
+}); 
+</script>
+</body>
+</html>
